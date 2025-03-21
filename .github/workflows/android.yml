@@ -38,9 +38,17 @@ jobs:
             mkdir build_64
             cd build_64
             ../build_64.sh
-      - name: build_android_32
+
+      - name: Archive SO Files
         run: |
-            cd project/android
-            mkdir build_32
-            cd build_32
-            ../build_32.sh
+          rm -rf artifacts
+          mkdir -p artifacts
+          find . -name "*.so" -exec cp --parents {} artifacts \;  # 收集所有.so文件
+          tar -czvf so-files.tar.gz -C artifacts .  # 打包成压缩文件
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-so-files
+          path: so-files.tar.gz  # 上传压缩包
+          retention-days: 7      # 保留时间（按需调整）
